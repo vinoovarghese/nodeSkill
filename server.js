@@ -21,11 +21,11 @@ app.get('/', (request, response) => {
   console.log(listEndpoints(app));
 });
 app.get('/test', (request, response) => {
-    response.send('Testing the /test api call .');
+    response.send('Testing the /test api call once again .');
   });
-  
+
 app.use("/api/vinoonode/users", userRouter);
 
 app.listen(3000, () => {
-  console.log('TIDE example running on localhost:3000');
+  console.log('TIDE DB example running on localhost:3000');
 });
