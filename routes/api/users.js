@@ -82,11 +82,10 @@ router.get("/:userid", async (req, res) => {
     if (!user) {
       res.status(400).message("error");
     }
-    console.log("User was found : " + user);
     res.json(user);
     
   } catch (error) {
-    console.log(error.message);
+    console.log(error);
     res.status(500).message("error");
   }
 });
@@ -97,14 +96,13 @@ router.delete("/:uid",async (req, res) => {
   try {
     
     // We need to find whether the user is existing or not..If not,throw an error
-    
+
     const user = await User.findById({_id: req.params.uid});
     if(!user) {
 
       return  res.status(400).json({ errors: [{ message: "No such user exists ." }] });
     }
 
-    console.log("user was found " + user);
     const deletedUser = await User.findOneAndRemove({ _id: req.params.uid });
     const msg=user.name+" was deleted !"
     res.json(msg);
