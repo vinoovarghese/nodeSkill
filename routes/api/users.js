@@ -52,7 +52,8 @@ router.post(
         };
 
        console.log("User registration was successful.");
-       res.json(a);
+       res.json({message:userName.name + " was succesfully registered !!!" + userName})
+       
       }
     } catch (err) {
       res.status(500).send("error");
@@ -65,10 +66,7 @@ router.post(
 router.get("/allUsers", async (req, res) => {
   try {
      const allUsers = await User.find().populate("user");
-    console.log("no of users are " + allUsers.length);
-    console.log(allUsers);
-
-    res.json(allUsers);
+     res.json(allUsers);
   } catch (error) {
     console.log(error.message);
     res.status(500).message("error");
@@ -79,13 +77,10 @@ router.get("/allUsers", async (req, res) => {
 
 router.get("/:userid", async (req, res) => {
   try {
-    console.log("user id passed is " + req.params.userid);
     const user = await User.findById(req.params.userid);
     
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: "No such user was found ! " });
+      res.status(400).message("error");
     }
     console.log("User was found : " + user);
     res.json(user);
@@ -94,6 +89,34 @@ router.get("/:userid", async (req, res) => {
     console.log(error.message);
     res.status(500).message("error");
   }
+});
+
+
+router.delete("/:uid",async (req, res) => {
+
+  try {
+    
+    // We need to find whether the user is existing or not..If not,throw an error
+    
+    const user = await User.findById({_id: req.params.uid});
+    if(!user) {
+
+      return  res.status(400).json({ errors: [{ message: "No such user exists ." }] });
+    }
+
+    console.log("user was found " + user);
+    const deletedUser = await User.findOneAndRemove({ _id: req.params.uid });
+    const msg=user.name+" was deleted !"
+    res.json(msg);
+    console.log("user was deleted " + deletedUser);
+
+
+  } catch (error) {
+    
+    console.log(error);
+    res.status(500).message("error");
+  }
+
 });
 
 module.exports = router;
