@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../../Models/User");
-
+const mongoose = require("mongoose");
 
 const { check, validationResult } = require("express-validator");
 
-//route for User Registration : 
+//Route for User Registration 
+
 router.post(
   "/",
   [
-    //Validations to be verified.
+    //Validations to be verified using .
 
     check("name", "Name is required.").not().isEmpty(),
     check("email", "Please enter a valid email.").isEmail(),
@@ -25,7 +26,7 @@ router.post(
 
     const { name, password, email,job } = req.body;
 
-    // First,find out whether the user already exists .
+    // First,find out whether the user already exists using the email.
      try {
       let user = await User.findOne({
         email,
@@ -43,8 +44,7 @@ router.post(
         });
 
         var userName = await user.save();
-        console.log("Username is " + userName);
-
+       
         const payload = {
           user: {
             id: user.id,
@@ -77,6 +77,9 @@ router.get("/allUsers", async (req, res) => {
 
 router.get("/:userid", async (req, res) => {
   try {
+
+    //Find out whether the user exists or not
+
     const user = await User.findById(req.params.userid);
     
     if (!user) {
@@ -90,12 +93,14 @@ router.get("/:userid", async (req, res) => {
   }
 });
 
+// Route to delete a specific user by passing the userid
+
 
 router.delete("/:uid",async (req, res) => {
 
   try {
     
-    // We need to find whether the user is existing or not..If not,throw an error
+    //Find out whether the user exists or not
 
     const user = await User.findById({_id: req.params.uid});
     if(!user) {
@@ -121,8 +126,8 @@ router.delete("/:uid",async (req, res) => {
 
 router.put("/:userId",
 [
-  //Validations to be verified.
-
+  //Validating only name as email/password is a unique field and ideally should not be changed.
+   
   check("name", "Name is required.").not().isEmpty(),
  ],
 async (req, res) => {
@@ -130,25 +135,27 @@ async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+
+  // Get details from the request body
   const { name, job} = req.body;
 
-  const UserObject={};
+  //Create a UserObject to store details from the request body
   
+  const UserObject={};
   UserObject.name=name;
   UserObject.job=job;
 
   try {
+
+    //Find out whether the user exists or not
+
     const userToBeUpdated = await User.findById({_id: req.params.userId});
+
     if(!userToBeUpdated) {
 
-      console.log("in the if not loop");
-      return  res.status(400).json("No such user exists .");
+        return  res.status(400).json("No such user exists .");
     }
 
-    //Validating only name as email is a unique field and ideally should not be changed.
-    //const userUpdated = await User.findByIdAndUpdate(req.params.userId);
-    
-    console.log("Before updating user");
     const userUpdated = await User.findOneAndUpdate(
                 {_id: req.params.userId },
                 { $set: UserObject},
