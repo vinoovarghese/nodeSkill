@@ -52,7 +52,7 @@ router.post(
         };
 
        console.log("User registration was successful.");
-       res.json({message:userName.name + " was succesfully registered !!!" + userName})
+       res.json({message:userName.name + " was succesfully registered !!!" + userName});
        
       }
     } catch (err) {
@@ -80,7 +80,7 @@ router.get("/:userid", async (req, res) => {
     const user = await User.findById(req.params.userid);
     
     if (!user) {
-      res.status(400).message("error");
+      return  res.status(400).send({ message: "No such user exists ." });
     }
     res.json(user);
     
@@ -99,12 +99,12 @@ router.delete("/:uid",async (req, res) => {
 
     const user = await User.findById({_id: req.params.uid});
     if(!user) {
-
-      return  res.status(400).json({ errors: [{ message: "No such user exists ." }] });
+      console.log("No such user found !!!")  ;  
+      return  res.status(400).json({message: "No such user exists to be deleted." });
     }
 
     const deletedUser = await User.findOneAndRemove({ _id: req.params.uid });
-    const msg=user.name+" was deleted !"
+    const msg=deletedUser.name+" was deleted !"
     res.json(msg);
     console.log("user was deleted " + deletedUser);
 
@@ -116,5 +116,53 @@ router.delete("/:uid",async (req, res) => {
   }
 
 });
+
+//updating the DB :
+
+router.put("/:userId",
+[
+  //Validations to be verified.
+
+  check("name", "Name is required.").not().isEmpty(),
+ ],
+async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  const { name, job} = req.body;
+
+  const UserObject={};
+  
+  UserObject.name=name;
+  UserObject.job=job;
+
+  try {
+    const userToBeUpdated = await User.findById({_id: req.params.userId});
+    if(!userToBeUpdated) {
+
+      console.log("in the if not loop");
+      return  res.status(400).json("No such user exists .");
+    }
+
+    //Validating only name as email is a unique field and ideally should not be changed.
+    //const userUpdated = await User.findByIdAndUpdate(req.params.userId);
+    
+    console.log("Before updating user");
+    const userUpdated = await User.findOneAndUpdate(
+                {_id: req.params.userId },
+                { $set: UserObject},
+                { new: true }
+              ); 
+    console.log("After updating user ",userUpdated);
+    return res.json(userUpdated);
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(message,"Some error has occured " , error.message);
+  }
+  }
+  
+);
 
 module.exports = router;
