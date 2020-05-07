@@ -122,7 +122,7 @@ router.delete("/:uid",async (req, res) => {
 
 });
 
-//updating the DB :
+// Route to update a specific user by passing the userid (just job and name)
 
 router.put("/:userId",
 [
@@ -140,7 +140,7 @@ async (req, res) => {
   const { name, job} = req.body;
 
   //Create a UserObject to store details from the request body
-  
+
   const UserObject={};
   UserObject.name=name;
   UserObject.job=job;
