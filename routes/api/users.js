@@ -42,7 +42,7 @@ router.post(
           email,
           job,
         });
-
+      
         var userName = await user.save();
        
         const payload = {
@@ -51,8 +51,8 @@ router.post(
           },
         };
 
-       console.log("User registration was successful.");
-       res.json({message:userName.name + " was succesfully registered !!!" + userName});
+       console.log(userName.name + " was succesfully registered !!!");
+       res.json(userName);
        
       }
     } catch (err) {
@@ -83,7 +83,7 @@ router.get("/:userid", async (req, res) => {
     const user = await User.findById(req.params.userid);
     
     if (!user) {
-      return  res.status(400).send({ message: "No such user exists ." });
+         return res.status(404).send({ message: "No such user with the userid  : " + req.params.userid + " exists !!!"});
     }
     res.json(user);
     
@@ -104,8 +104,8 @@ router.delete("/:uid",async (req, res) => {
 
     const user = await User.findById({_id: req.params.uid});
     if(!user) {
-      console.log("No such user found !!!")  ;  
-      return  res.status(400).json({message: "No such user exists to be deleted." });
+       
+      return res.status(404).send({ message: "No such user with the userid  :  " + req.params.uid + " exists !!!" });
     }
 
     const deletedUser = await User.findOneAndRemove({ _id: req.params.uid });
@@ -153,7 +153,7 @@ async (req, res) => {
 
     if(!userToBeUpdated) {
 
-        return  res.status(400).json("No such user exists .");
+      return res.status(404).send({ message: "No such user with the userid  :  " + req.params.userId + " exists !!!"});
     }
 
     const userUpdated = await User.findOneAndUpdate(
